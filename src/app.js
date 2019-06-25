@@ -10,7 +10,6 @@ app.use("/pokemon", pokemonRouter);
 
 // ERROR HANDLER - good to have error handler
 app.use((err, req, res, next) => {
-  //Question funny message with this code
   console.log("error", err);
   res.sendStatus(500);
 });

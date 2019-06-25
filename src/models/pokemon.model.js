@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+mongoose.set("useFindAndModify", false); //to remove Deprecation Warnings
 mongoose.set("useCreateIndex", true);
 const Schema = mongoose.Schema;
 

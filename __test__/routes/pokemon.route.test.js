@@ -39,7 +39,7 @@ describe("Pokemon", () => {
   });
 
   it("GET /pokemon should find all pokemon", async () => {
-    const collection = db.collection("pokemons"); //Question: Why I cannot use ("pokemon")?
+    const collection = db.collection("pokemons"); //Question: Why I cannot use ("pokemon")? Ans1: when mongoose create the model. mongoose.model(‘pokemon’, pokemonSchema). mongoose will ask mongodb to create a collection with the plural form and all small caps of ‘pokemon’ thus ‘pokemons’
     await collection.insertMany(pokemonData);
 
     const response = await request(app).get("/pokemon");
@@ -74,8 +74,8 @@ describe("Pokemon", () => {
     const foundPokemon = await collection.findOne({ id: 1 });
     // console.log("create", response.body);
     // console.log("found", foundPokemon);
-    // expect(foundPokemon).toMatchObject(response.body); //Questions: Why I cannot test this?
-    expect(foundPokemon.name.english).toEqual("Bulbasaur");
+    expect(foundPokemon).toMatchObject(newPokemon); //Why I cannot test against response.body because of different UUID
+    // expect(foundPokemon.name.english).toEqual("Bulbasaur");
   });
 
   const getPokemonData = index => pokemonData.slice(index, index + 1)[0];

@@ -18,7 +18,7 @@ const findOne = async (req, res, next) => {
   try {
     const { id } = req.params;
     const foundPokemon = await Pokemon.findOne({ id });
-    res.json(foundPokemon).sendStatus(200);
+    res.json(foundPokemon); //There is no need to sendStatus(200) because .json and .sendStatus(200) have the same sending mechanism
   } catch (error) {
     next(error);
   }
