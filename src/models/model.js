@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false); //to remove Deprecation Warnings
-mongoose.set("useCreateIndex", true);
+mongoose.set("useCreateIndex", true); //to remove Deprecation Warnings
 const Schema = mongoose.Schema;
 
-// const pokemonSchema = new mongoose.Schema({
 const pokemonSchema = Schema({
   id: { type: Number, unique: true, required: true },
   name: {
@@ -22,4 +21,16 @@ const pokemonSchema = Schema({
   }
 });
 
+const userSchema = Schema({
+  id: { type: Number, unique: true, required: true },
+  name: { type: String, required: true },
+  pokemonCollection: [
+    {
+      name: { type: String, required: true },
+      id: { type: Number, required: true }
+    }
+  ]
+});
+
 mongoose.model("pokemon", pokemonSchema);
+mongoose.model("user", userSchema);

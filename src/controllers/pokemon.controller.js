@@ -1,4 +1,4 @@
-require("../models/pokemon.model");
+require("../models/model");
 const mongoose = require("mongoose");
 const Pokemon = mongoose.model("pokemon");
 const { flattenObj } = require("../utils/objectHelper");

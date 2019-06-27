@@ -3,7 +3,7 @@ const { MongoClient } = require("mongodb");
 const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../../src/app");
-require("../../src/utils/db");
+// require("../../src/utils/db");
 
 describe("Pokemon", () => {
   let connection;
@@ -16,6 +16,7 @@ describe("Pokemon", () => {
     connection = await MongoClient.connect(global.__MONGO_URI__, {
       useNewUrlParser: true
     });
+    console.log(global.__MONGO_URI__);
 
     // console.log(global.__MONGO_URI__);
     // console.log(dbName);
