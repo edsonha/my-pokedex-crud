@@ -7,9 +7,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand --watchAll",
     "test:watch": "jest --watchAll",
-    "nodemon": "nodemon server.js"
+    "nodemon": "nodemon src/server.js"
   },
   "keywords": [],
   "author": "",

@@ -17,7 +17,7 @@ describe("User", () => {
       useNewUrlParser: true
     });
 
-    console.log(global.__MONGO_URI__);
+    // console.log(global.__MONGO_URI__);
     db = await connection.db(dbName);
   });
 
@@ -36,7 +36,7 @@ describe("User", () => {
     await collection.insertMany(userData);
 
     const response = await request(app).get("/users");
-    expect(response.body).toMatchObject(userData);
+    expect(response.body).toEqual(userData);
   });
 
   const getUserData = index => userData.slice(index, index + 1)[0];
@@ -50,7 +50,7 @@ describe("User", () => {
 
     expect(response.status).toEqual(200);
     const foundUser = await collection.findOne({ id: user.id });
-    expect(foundUser).toMatchObject(response.body);
+    expect(response.body).toEqual(foundUser);
   });
 
   it("POST /users/:id should add one pokemon, Caterpie to Peter id:1", async () => {
@@ -84,7 +84,7 @@ describe("User", () => {
 
     expect(response.status).toEqual(200);
     const decreasingUserCollection = await collection.findOne({ id: user.id });
-    expect(decreasingUserCollection.pokemonCollection).toMatchObject([
+    expect(decreasingUserCollection.pokemonCollection).toEqual([
       {
         name: "Charizard",
         id: 6

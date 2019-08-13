@@ -18,7 +18,11 @@ const findOne = async (req, res, next) => {
   try {
     const { id } = req.params;
     const foundPokemon = await Pokemon.findOne({ id });
-    res.json(foundPokemon); //There is no need to sendStatus(200) because .json and .sendStatus(200) have the same sending mechanism
+    if (foundPokemon) {
+      res.json(foundPokemon);
+    } else {
+      res.status(400).send("Pokemon is not found");
+    }
   } catch (error) {
     next(error);
   }
@@ -27,8 +31,12 @@ const findOne = async (req, res, next) => {
 const deleteOne = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await Pokemon.findOneAndDelete({ id });
-    res.sendStatus(200);
+    const deletedPokemon = await Pokemon.findOneAndDelete({ id });
+    if (deletedPokemon) {
+      res.status(200).send(`${deletedPokemon.name.english} is deleted`);
+    } else {
+      res.status(400).send("Pokemon is not found");
+    }
   } catch (error) {
     next(error);
   }
@@ -41,8 +49,13 @@ const updateOne = async (req, res, next) => {
 
     const updateFields = flattenObj(update);
 
-    await Pokemon.findOneAndUpdate({ id }, updateFields);
-    res.sendStatus(200);
+    const updatedPokemon = await Pokemon.findOneAndUpdate({ id }, updateFields);
+
+    if (updatedPokemon) {
+      res.status(200).send("Update is successful");
+    } else {
+      res.status(400).send("Pokemon is not found");
+    }
   } catch (error) {
     next(error);
   }

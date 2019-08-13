@@ -16,7 +16,7 @@ describe("Pokemon", () => {
     connection = await MongoClient.connect(global.__MONGO_URI__, {
       useNewUrlParser: true
     });
-    console.log(global.__MONGO_URI__);
+    // console.log(global.__MONGO_URI__);
 
     // console.log(global.__MONGO_URI__);
     // console.log(dbName);
@@ -44,7 +44,7 @@ describe("Pokemon", () => {
     await collection.insertMany(pokemonData);
 
     const response = await request(app).get("/pokemon");
-    expect(response.body).toMatchObject(pokemonData);
+    expect(response.body).toEqual(pokemonData);
   });
 
   it("POST /pokemon should create a new pokemon", async () => {
@@ -90,7 +90,7 @@ describe("Pokemon", () => {
 
     expect(response.status).toEqual(200);
     const foundPokemon = await collection.findOne({ id: pokemon.id });
-    expect(foundPokemon).toMatchObject(response.body);
+    expect(response.body).toEqual(foundPokemon);
     // console.log(foundPokemon);
     // console.log(response.body);
   });

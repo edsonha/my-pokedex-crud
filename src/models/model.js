@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-mongoose.set("useFindAndModify", false); //to remove Deprecation Warnings
-mongoose.set("useCreateIndex", true); //to remove Deprecation Warnings
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 const Schema = mongoose.Schema;
 
 const pokemonSchema = Schema({
