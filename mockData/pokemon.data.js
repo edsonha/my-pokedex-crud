@@ -1,5 +1,4 @@
 module.exports = [
-  //Mock Data for testing
   {
     name: {
       english: "Squirtle",
