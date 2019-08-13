@@ -1,9 +1,8 @@
-const pokemonData = require("../../data/pokemon.data");
+const pokemonData = require("../../mockData/pokemon.data");
 const { MongoClient } = require("mongodb");
 const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../../src/app");
-// require("../../src/utils/db");
 
 describe("Pokemon", () => {
   let connection;
@@ -16,10 +15,6 @@ describe("Pokemon", () => {
     connection = await MongoClient.connect(global.__MONGO_URI__, {
       useNewUrlParser: true
     });
-    // console.log(global.__MONGO_URI__);
-
-    // console.log(global.__MONGO_URI__);
-    // console.log(dbName);
     db = await connection.db(dbName);
   });
 
@@ -29,102 +24,133 @@ describe("Pokemon", () => {
     await db.close();
   });
 
-  beforeEach(async () => {
-    await db.dropDatabase();
-  });
-
-  it("GET / should return a hello message", async () => {
-    const response = await request(app).get("/");
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual("Hello world");
-  });
-
-  it("GET /pokemon should find all pokemon", async () => {
-    const collection = db.collection("pokemons"); //Question: Why I cannot use ("pokemon")? Ans1: when mongoose create the model. mongoose.model(‘pokemon’, pokemonSchema). mongoose will ask mongodb to create a collection with the plural form and all small caps of ‘pokemon’ thus ‘pokemons’
-    await collection.insertMany(pokemonData);
-
-    const response = await request(app).get("/pokemon");
-    expect(response.body).toEqual(pokemonData);
-  });
-
-  it("POST /pokemon should create a new pokemon", async () => {
+  const insertPokemonDataIntoTestDB = async () => {
     const collection = db.collection("pokemons");
     await collection.insertMany(pokemonData);
-    const newPokemon = {
-      id: 1,
-      name: {
-        english: "Bulbasaur",
-        japanese: "フシギダネ",
-        chinese: "妙蛙种子"
-      },
-      type: ["Grass", "Poison"],
-      base: {
-        HP: 45,
-        Attack: 49,
-        Defense: 49,
-        SpAttack: 65,
-        SpDefence: 65,
-        Speed: 45
-      }
-    };
-    const response = await request(app)
-      .post(`/pokemon`)
-      .send(newPokemon)
-      .set("Content-Type", "application/json");
-    expect(response.status).toEqual(200);
-    const foundPokemon = await collection.findOne({ id: 1 });
-    // console.log("create", response.body);
-    // console.log("found", foundPokemon);
-    expect(foundPokemon).toMatchObject(newPokemon); //Why I cannot test against response.body because of different UUID
-    // expect(foundPokemon.name.english).toEqual("Bulbasaur");
+  };
+
+  beforeEach(async () => {
+    await db.dropDatabase();
+    await insertPokemonDataIntoTestDB();
   });
 
   const getPokemonData = index => pokemonData.slice(index, index + 1)[0];
 
-  it("GET /pokemon/:id should get the data (Squirtle id:7) from database", async () => {
-    const pokemon = getPokemonData(0);
-    const collection = db.collection("pokemons");
-    await collection.insertMany(pokemonData);
+  describe("GET", () => {
+    it("GET / should return a hello message", async () => {
+      const response = await request(app).get("/");
+      expect(response.status).toBe(200);
+      expect(response.body).toBe("Hello world");
+    });
 
-    const response = await request(app).get(`/pokemon/${pokemon.id}`);
+    it("GET /pokemon should find all pokemon", async () => {
+      const response = await request(app).get("/pokemon");
+      expect(response.body).toEqual(pokemonData);
+    });
 
-    expect(response.status).toEqual(200);
-    const foundPokemon = await collection.findOne({ id: pokemon.id });
-    expect(response.body).toEqual(foundPokemon);
-    // console.log(foundPokemon);
-    // console.log(response.body);
+    it("GET /pokemon/:id should get the data (Squirtle id:7) from database", async () => {
+      const pokemon = getPokemonData(0);
+      const collection = db.collection("pokemons");
+
+      const response = await request(app).get(`/pokemon/${pokemon.id}`);
+
+      expect(response.status).toBe(200);
+      const foundPokemon = await collection.findOne({ id: pokemon.id });
+      expect(response.body).toEqual(foundPokemon);
+    });
+
+    it("GET /pokemon/:id should return 'Pokemon is not found' if invalid id is given", async () => {
+      const response = await request(app).get(`/pokemon/2`);
+      expect(response.status).toBe(400);
+      expect(response.text).toBe("Pokemon is not found");
+    });
   });
 
-  it("DELETE /pokemon/:id should delete the data (Squirtle id:7) from database", async () => {
-    const pokemon = getPokemonData(0);
-    const collection = db.collection("pokemons");
-    await collection.insertMany(pokemonData);
-
-    const response = await request(app).delete(`/pokemon/${pokemon.id}`);
-
-    expect(response.status).toEqual(200);
-    // console.log(response.body);
-    const deletedPokemon = await collection.findOne({ id: pokemon.id });
-    expect(deletedPokemon).toBeFalsy();
+  describe("POST", () => {
+    it("POST /pokemon should create a new pokemon", async () => {
+      const collection = db.collection("pokemons");
+      const newPokemon = {
+        id: 1,
+        name: {
+          english: "Bulbasaur",
+          japanese: "フシギダネ",
+          chinese: "妙蛙种子"
+        },
+        type: ["Grass", "Poison"],
+        base: {
+          HP: 45,
+          Attack: 49,
+          Defense: 49,
+          SpAttack: 65,
+          SpDefence: 65,
+          Speed: 45
+        }
+      };
+      const response = await request(app)
+        .post(`/pokemon`)
+        .send(newPokemon)
+        .set("Content-Type", "application/json");
+      expect(response.status).toBe(200);
+      const foundPokemon = await collection.findOne({ id: 1 });
+      expect(foundPokemon).toMatchObject(newPokemon);
+    });
   });
 
-  it("PUT /pokemon/:id should modify the data (Squirtle id:7) from database", async () => {
-    const pokemon = getPokemonData(0);
-    const collection = db.collection("pokemons");
-    await collection.insertMany(pokemonData);
-    const updatedFields = {
-      name: {
-        english: "John Smith"
-      }
-    };
+  describe("DELETE", () => {
+    it("DELETE /pokemon/:id should delete the data (Squirtle id:7) from database", async () => {
+      const pokemon = getPokemonData(0);
+      const collection = db.collection("pokemons");
 
-    const response = await request(app)
-      .put(`/pokemon/${pokemon.id}`)
-      .send(updatedFields)
-      .set("Content-Type", "application/json");
+      const response = await request(app).delete(`/pokemon/${pokemon.id}`);
 
-    expect(response.status).toEqual(200);
-    const dataFromDb = await collection.findOne({ id: pokemon.id });
-    expect(dataFromDb.name.english).toEqual(updatedFields.name.english);
+      expect(response.status).toBe(200);
+      const deletedPokemon = await collection.findOne({ id: pokemon.id });
+      expect(deletedPokemon).toBeFalsy();
+    });
+
+    it("DELETE /pokemon/:id should return `Pokemon is not found` when given invalid id", async () => {
+      const response = await request(app).delete(`/pokemon/2`);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toBe("Pokemon is not found");
+    });
+  });
+
+  describe("PUT", () => {
+    it("PUT /pokemon/:id should modify the data (Squirtle id:7) from database", async () => {
+      const pokemon = getPokemonData(0);
+      const collection = db.collection("pokemons");
+
+      const updatedFields = {
+        name: {
+          english: "John Smith"
+        }
+      };
+
+      const response = await request(app)
+        .put(`/pokemon/${pokemon.id}`)
+        .send(updatedFields)
+        .set("Content-Type", "application/json");
+
+      expect(response.status).toBe(200);
+      const dataFromDb = await collection.findOne({ id: pokemon.id });
+      expect(dataFromDb.name.english).toBe(updatedFields.name.english);
+    });
+
+    it("PUT /pokemon/:id should return `Pokemon is not found` if invalid id is given", async () => {
+      const updatedFields = {
+        name: {
+          english: "John Smith"
+        }
+      };
+
+      const response = await request(app)
+        .put(`/pokemon/2`)
+        .send(updatedFields)
+        .set("Content-Type", "application/json");
+
+      expect(response.status).toBe(400);
+      expect(response.text).toBe("Pokemon is not found");
+    });
   });
 });

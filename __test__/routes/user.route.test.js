@@ -1,4 +1,4 @@
-const userData = require("../../data/user.data");
+const userData = require("../../mockData/user.data");
 const { MongoClient } = require("mongodb");
 const request = require("supertest");
 const mongoose = require("mongoose");
