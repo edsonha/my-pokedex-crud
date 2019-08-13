@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand --watchAll",
-    "test:watch": "jest --watchAll",
+    "coverage": "npx jest --runInBand --coverage",
     "nodemon": "nodemon src/server.js"
   },
   "keywords": [],
